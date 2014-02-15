@@ -18,7 +18,7 @@ def get_distances(request):
 
     if(request.GET.get('get_button')):
         module_dir = os.path.dirname(__file__)
-        file_path = os.path.join(module_dir, 'templates/routes.csv')
+        file_path = os.path.join(module_dir, 'templates/all_routes.csv')
         base = 'http://routes.cloudmade.com/a0965b26e9f74332ad14107ef4a0ebbb/api/0.3/'
         count = 0
         error_count = 0
