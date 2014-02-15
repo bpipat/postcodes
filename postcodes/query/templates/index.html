@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>Get Distances</TITLE>
+</HEAD>
+
+<script>
+$("#<get_button>").click( function() {
+    $.get("/get_distances", function () {
+    });
+});
+
+$("#<populate>").click( function() {
+    $.get("/populate", function () {
+    });
+});
+</script>
+
+<form action="/populate/" method="get">
+ <input type="submit" class="btn" value="Populate Postcodes" name="populate">
+</form>
+
+<form action="/getdistances/" method="get">
+ <input type="submit" class="btn" value="Get Distances" name="get_button">
+</form>
+
+
+</HTML>
