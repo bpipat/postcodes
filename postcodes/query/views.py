@@ -9,6 +9,7 @@ import urllib2
 import urllib
 import pprint
 import csv
+import time
 from models import Postcode, Distance
 
 class IndexView(TemplateView):
@@ -41,36 +42,41 @@ def get_distances(request):
                     d.save()
                 if d.distance != -1:
                     existing_count += 1
-                    print('Route already calculated')
+                    #print('Route already calculated')
                 else:
                     if (startLat, startLng) != (endLat, endLng):
+                        time.sleep(2)
                         url = u'%s%s%s%s%s%s%s%s%s' % (base, startLat , ',' , startLng , ',' , endLat , ',' , endLng, '/car/shortest.js')
                         print url
                         req = urllib2.Request(url)
                         resp = urllib2.urlopen(req)
                         content = resp.read()
-                        data = json.loads(content)
+                        try:
+                            data = json.loads(content)
                         #pprint.pprint(data)
-                        if data['status'] == 0:
-                            distance = data['route_summary']['total_distance']
-                            d.distance = distance
-                            d.save()
-                            count += 1
-                        elif data['status'] == 207:
-                            d.distance = -2
-                            d.save()
-                            unknow_count += 1
-                            print('Route unknown')
-                        else:
-                            d.distance = -3
-                            d.save()
+                            if data['status'] == 0:
+                                distance = data['route_summary']['total_distance']
+                                d.distance = distance
+                                d.save()
+                                count += 1
+                            elif data['status'] == 207:
+                                d.distance = -2
+                                d.save()
+                                unknow_count += 1
+                                print('Route unknown')
+                            else:
+                                d.distance = -3
+                                d.save()
+                                error_count += 1
+                                print('Routing error')
+                        except:
                             error_count += 1
                             print('Routing error')
                     else:
                         d.distance = 0
                         d.save()
                         zero_count += 1
-    r = '%s %s %s %s %s %s %s %s %s %s' % (existing_count, 'routes know, ', count, 'routes calculated,', unknow_count, 'unknown routes', error_count, 'errors and', zero_count, 'zeros')
+    r = '%s %s %s %s %s %s %s %s %s %s' % (existing_count, 'routes known, ', count, 'routes calculated,', unknow_count, 'unknown routes', error_count, 'errors and', zero_count, 'zeros')
     return HttpResponse(r)
 
 # def get_distances2(request):
