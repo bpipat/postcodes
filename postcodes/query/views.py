@@ -45,33 +45,38 @@ def get_distances(request):
                     #print('Route already calculated')
                 else:
                     if (startLat, startLng) != (endLat, endLng):
-                        time.sleep(2)
+                        #time.sleep(2)
                         url = u'%s%s%s%s%s%s%s%s%s' % (base, startLat , ',' , startLng , ',' , endLat , ',' , endLng, '/car/shortest.js')
                         print url
-                        req = urllib2.Request(url)
-                        resp = urllib2.urlopen(req)
-                        content = resp.read()
-                        try:
-                            data = json.loads(content)
-                        #pprint.pprint(data)
-                            if data['status'] == 0:
-                                distance = data['route_summary']['total_distance']
-                                d.distance = distance
-                                d.save()
-                                count += 1
-                            elif data['status'] == 207:
-                                d.distance = -2
-                                d.save()
-                                unknow_count += 1
-                                print('Route unknown')
-                            else:
-                                d.distance = -3
-                                d.save()
+                        try :
+                            req = urllib2.Request(url)
+                            resp = urllib2.urlopen(req)
+                            content = resp.read()
+                            #print content
+                            try:
+                                data = json.loads(content)
+                                #pprint.pprint(data)
+                                if data['status'] == 0:
+                                    distance = data['route_summary']['total_distance']
+                                    d.distance = distance
+                                    d.save()
+                                    count += 1
+                                elif data['status'] == 207:
+                                    d.distance = -2
+                                    d.save()
+                                    unknow_count += 1
+                                    print('Route unknown')
+                                else:
+                                    d.distance = -3
+                                    d.save()
+                                    error_count += 1
+                                    print('Routing error')
+                            except:
                                 error_count += 1
                                 print('Routing error')
                         except:
                             error_count += 1
-                            print('Routing error')
+                            print('Request error')
                     else:
                         d.distance = 0
                         d.save()
