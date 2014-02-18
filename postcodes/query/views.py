@@ -19,7 +19,7 @@ def get_distances(request):
 
     if(request.GET.get('get_button')):
         module_dir = os.path.dirname(__file__)
-        file_path = os.path.join(module_dir, 'templates/all_routes.csv')
+        file_path = os.path.join(module_dir, 'templates/all_routes2.csv')
         base = 'http://routes.cloudmade.com/a0965b26e9f74332ad14107ef4a0ebbb/api/0.3/'
         count = 0
         error_count = 0
@@ -29,6 +29,7 @@ def get_distances(request):
         with open(file_path, "rU") as f:
             reader = csv.reader(f)
             for row in reader:
+                #print row
                 postcode_a = Postcode.objects.get(code=row[0])
                 postcode_b = Postcode.objects.get(code=row[1])
                 startLat = postcode_a.latitude
@@ -37,14 +38,16 @@ def get_distances(request):
                 endLng = postcode_b.longitude
                 try:
                     d = Distance.objects.get(a=postcode_a, b=postcode_b)
+                    #print('distance exists')
                 except:
-                    d = Distance.objects.create(distance=-1, a=postcode_a, b=postcode_b)
+                    #print('distance doesnt exist')
+                    d = Distance.objects.create(distance=-1, time=-1, a=postcode_a, b=postcode_b)
                     d.save()
                 if d.distance != -1:
                     existing_count += 1
                     #print('Route already calculated')
                 else:
-                    if (startLat, startLng) != (endLat, endLng):
+                    if postcode_a != postcode_b:
                         #time.sleep(2)
                         url = u'%s%s%s%s%s%s%s%s%s' % (base, startLat , ',' , startLng , ',' , endLat , ',' , endLng, '/car/shortest.js')
                         print url
@@ -58,8 +61,14 @@ def get_distances(request):
                                 #pprint.pprint(data)
                                 if data['status'] == 0:
                                     distance = data['route_summary']['total_distance']
+                                    time = data['route_summary']['total_time']
+                                    #print distance
+                                    #print time
                                     d.distance = distance
+                                    d.time = time
                                     d.save()
+                                    #print d.distance
+                                    #print d.time
                                     count += 1
                                 elif data['status'] == 207:
                                     d.distance = -2
@@ -79,6 +88,7 @@ def get_distances(request):
                             print('Request error')
                     else:
                         d.distance = 0
+                        d.time = 0
                         d.save()
                         zero_count += 1
     r = '%s %s %s %s %s %s %s %s %s %s' % (existing_count, 'routes known, ', count, 'routes calculated,', unknow_count, 'unknown routes', error_count, 'errors and', zero_count, 'zeros')

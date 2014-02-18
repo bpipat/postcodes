@@ -14,6 +14,7 @@ class Postcode(models.Model):
 class Distance(models.Model):
 
     distance = models.IntegerField(blank=True, null=True)
+    time = models.IntegerField(blank=True, null=True)
     a = models.ForeignKey(Postcode, related_name='distance_to')
     b = models.ForeignKey(Postcode, related_name='distance_from')
 
