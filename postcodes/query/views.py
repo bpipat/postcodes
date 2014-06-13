@@ -19,7 +19,7 @@ def get_distances(request):
 
     if(request.GET.get('get_button')):
         module_dir = os.path.dirname(__file__)
-        file_path = os.path.join(module_dir, 'templates/all_routes2.csv')
+        file_path = os.path.join(module_dir, 'templates/all_routes.csv')
         base = 'http://routes.cloudmade.com/a0965b26e9f74332ad14107ef4a0ebbb/api/0.3/'
         count = 0
         error_count = 0
@@ -43,7 +43,7 @@ def get_distances(request):
                     #print('distance doesnt exist')
                     d = Distance.objects.create(distance=-1, time=-1, a=postcode_a, b=postcode_b)
                     d.save()
-                if d.distance != -1:
+                if d.distance > -1:
                     existing_count += 1
                     #print('Route already calculated')
                 else:
